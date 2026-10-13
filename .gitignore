@@ -1,0 +1,13 @@
+#### Library Management System ####
+#### Version: 1
+
+# Project Structure
+/.idea
+/.vscode
+/bin
+/lib
+/out
+
+# Additional File
+*.iml
+

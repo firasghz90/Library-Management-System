@@ -11,14 +11,13 @@ public class LibraryApp {
         System.out.println("================================");
         System.out.println("Version: 1.0");
 
-        Book[] books = new Book[5];
-        int totalBooks = 0;
+        LibraryService libraryService = new LibraryService(5);
         String libraryName = "City Library";
 
         System.out.println("Library name: " + libraryName);
-        System.out.println("Total books: " + totalBooks);
+        System.out.println("Total books: " + libraryService.getTotalBooks());
 
-        int availableSlots = getAvailableSlots(books, totalBooks);
+        int availableSlots = libraryService.getAvailableSlots();
         System.out.println("Available slot: " + availableSlots );
 
         System.out.println("Status: Initializing...");
@@ -28,16 +27,6 @@ public class LibraryApp {
         System.out.print("Enter your name: ");
         String username = userInput.nextLine();
         System.out.println("Welcome, " + username + "!");
-
-
-        Book book = new Book("Clean Code", "Robert C. Martin");
-        try {
-            book.setTitle("");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        System.out.println(book.getTitle());
 
         boolean isRunning = true;
         while (isRunning) {
@@ -49,55 +38,39 @@ public class LibraryApp {
                 int userChoice = Integer.parseInt(input);
                 switch (userChoice) {
                 case 1:
-                    displayBooks(books, totalBooks);
+                    libraryService.displayBooks();
                     break;
 
                 case 2:
-                    if (totalBooks < books.length) {
-                        System.out.print("Enter the book title: ");
-                        String bookTitle = userInput.nextLine().trim();
-                        if (bookTitle.isEmpty()) {
-                            System.out.println("Book cannot be empty or blank. Try again.");
-                            continue;
-                        }
+                    System.out.print("Enter the book title: ");
+                    String bookTitle = userInput.nextLine().trim();
 
-                        System.out.print("Enter the book author: ");
-                        String bookAuthor = userInput.nextLine().trim();
-                        if (bookAuthor.isEmpty()) {
-                            System.out.println("Author cannot be empty of blank.Try again.");
-                            continue;
-                        }
-
-                        boolean duplicateFound = false;
-                        for (int i = 0; i < totalBooks; i++) {
-                            String selectedBook = books[i].getTitle();
-                            if (selectedBook.equalsIgnoreCase(bookTitle)) {
-                                duplicateFound = true;
-                                break;
-                            } 
-                        }
-
-                        if (duplicateFound) {
-                            System.out.println("Duplicated found. This books already exist in library.");
-                            continue;
-                        }
-
-                        try {
-                            books[totalBooks] = new Book(bookTitle, bookAuthor);
-                            totalBooks++;
-
-                            System.out.println("Book added successfully!");
-                            System.out.println("Available slots: " + getAvailableSlots(books, totalBooks));
+                    if (bookTitle.isEmpty()) {
+                        System.out.println("Book title cannot be blank.");
+                        break;
                         
-                        } catch (IllegalArgumentException e) {
-                            System.out.println(e.getMessage());
+                    }
+
+                    System.out.print("Enter the book author: ");
+                    String bookAuthor = userInput.nextLine().trim();
+
+                    if (bookAuthor.isEmpty()) {
+                        System.out.println("Author cannot be blank.");
+
+                    }
+                    
+                    try {
+                        boolean isAdded = libraryService.addBook(bookTitle, bookAuthor);
+                        if (isAdded) {
+                            System.out.println("Book added successfully.");
+                            System.out.println("Available slots: " + libraryService.getAvailableSlots());
+
+                        } else {
+                            System.out.println("Book could not be added. The library is maybe full or the title may already exist.");
 
                         }
-
-                        
-
-                    } else {
-                        System.out.println("The library is full!");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Error: " + e.getMessage());
 
                     }
                     break;
@@ -131,6 +104,38 @@ public class LibraryApp {
                     break;
 
                 case 4:
+                    if (totalBooks == 0) {
+                        System.out.println("There are no books to remove");
+                        break;
+                    }
+
+                    System.out.print("Enter the title of the book to remove: ");
+                    String removeTitle = userInput.nextLine().trim();
+
+                    int removeIndex = -1;
+                    for (int i = 0; i < totalBooks; i++) {
+                        if (books[i].getTitle().equalsIgnoreCase(removeTitle)) {
+                            removeIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (removeIndex != -1) {
+                        for (int i = removeIndex; i < totalBooks - 1; i++) {
+                            books[i] = books[i + 1];
+                        }
+
+                        books[totalBooks - 1] = null;
+                        totalBooks--;
+                        System.out.println("Book removed successfully!");
+
+                    } else {
+                        System.out.println("Book not found.");
+
+                    }
+                    break;
+
+                case 5:
                     System.out.println("Goodbye!");
                     isRunning = false;
                     break;
@@ -172,6 +177,7 @@ public class LibraryApp {
         System.out.println("1. View All Books");
         System.out.println("2. Add a Book");
         System.out.println("3. Search for a Book");
-        System.out.println("4. Exit");
+        System.out.println("4. Remove a Book");
+        System.out.println("5. Exit");
     }
 }

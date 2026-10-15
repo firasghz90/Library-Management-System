@@ -16,9 +16,7 @@ public class LibraryApp {
 
         System.out.println("Library name: " + libraryName);
         System.out.println("Total books: " + libraryService.getTotalBooks());
-
-        int availableSlots = libraryService.getAvailableSlots();
-        System.out.println("Available slot: " + availableSlots );
+        System.out.println("Available slot: " + libraryService.getAvailableSlots());
 
         System.out.println("Status: Initializing...");
         System.out.println("Welcome to Library!");
@@ -56,7 +54,7 @@ public class LibraryApp {
 
                     if (bookAuthor.isEmpty()) {
                         System.out.println("Author cannot be blank.");
-
+                        break;
                     }
                     
                     try {
@@ -76,58 +74,51 @@ public class LibraryApp {
                     break;
 
                 case 3:
-                    if (totalBooks == 0) {
-                        System.out.println("Sorry there is no books in the library.");
-                        continue;
-
+                    if (libraryService.getTotalBooks() == 0) {
+                        System.out.println("There are no books in the library");
+                        break;
                     }
 
-                    System.out.print("Enter the book title: ");
+                    System.out.print("Enter the book title to search: ");
                     String searchTitle = userInput.nextLine().trim();
+
                     if (searchTitle.isEmpty()) {
-                        System.out.println("Search Title cannot be empty or blank. Try again.");
-                        continue;
-
+                        System.out.println("Search title cannot be blank.");
+                        break;
+                    
                     }
 
-                    boolean isBookFound = false;
-                    for (int i = 0; i < totalBooks; i++) {
-                        if (books[i].getTitle().equalsIgnoreCase(searchTitle)) {
-                            isBookFound = true;
-                            System.out.println("Book found: " + books[i].getTitle() + " : " + books[i].getAuthor());
-                            break;
-
-                        }
+                    Book foundBook = libraryService.searchBook(searchTitle);
+                    if (foundBook != null) {
+                        System.out.println("Book found: " + foundBook.getTitle() + " : " + foundBook.getAuthor());
+                    
+                    } else {
+                        System.out.println("Book not found.");
+                    
                     }
-
-                    if (!isBookFound) System.out.println("Book not found.");
                     break;
 
                 case 4:
-                    if (totalBooks == 0) {
-                        System.out.println("There are no books to remove");
+                    if (libraryService.getTotalBooks() == 0) {
+                        System.out.println("There are no books to remove.");
                         break;
+                    
                     }
 
                     System.out.print("Enter the title of the book to remove: ");
                     String removeTitle = userInput.nextLine().trim();
 
-                    int removeIndex = -1;
-                    for (int i = 0; i < totalBooks; i++) {
-                        if (books[i].getTitle().equalsIgnoreCase(removeTitle)) {
-                            removeIndex = i;
-                            break;
-                        }
+                    if (removeTitle.isEmpty()) {
+                        System.out.println("Book title cannot be blank.");
+                        break;
+
                     }
 
-                    if (removeIndex != -1) {
-                        for (int i = removeIndex; i < totalBooks - 1; i++) {
-                            books[i] = books[i + 1];
-                        }
+                    boolean isRemoved = libraryService.removeBook(removeTitle);
 
-                        books[totalBooks - 1] = null;
-                        totalBooks--;
+                    if (isRemoved) {
                         System.out.println("Book removed successfully!");
+                        System.out.println("Available slots: " + libraryService.getAvailableSlots());
 
                     } else {
                         System.out.println("Book not found.");
@@ -152,24 +143,6 @@ public class LibraryApp {
         }
         
         userInput.close();
-    }
-
-    private static int getAvailableSlots(Book[] books, int totalBooks) {
-        return books.length - totalBooks;
-    }
-
-    private static void displayBooks(Book[] books, int totalBooks) {
-        if (totalBooks == 0) {
-            System.out.println("No books is available");
-
-        } else {
-            System.out.println("Books in library: ");
-            for (int i = 0; i < totalBooks; i++) {
-                System.out.println((i + 1) + ". " 
-                    + books[i].getTitle() + " : " + books[i].getAuthor());
-
-            }
-        }
     }
 
     private static void displayMenu() {
